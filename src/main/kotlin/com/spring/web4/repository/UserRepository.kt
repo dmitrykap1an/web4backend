@@ -1,6 +1,6 @@
 package com.spring.web4.repository
 
-import com.spring.web4.entities.UserEntity
+import com.spring.web4.utils.entities.UserEntity
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 

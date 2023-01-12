@@ -1,6 +1,6 @@
-package com.spring.web4.entities
+package com.spring.web4.utils.entities
 
-import com.spring.web4.model.User
+import com.spring.web4.utils.model.User
 import jakarta.persistence.*
 import java.io.Serializable
 
@@ -18,7 +18,6 @@ class UserEntity : Serializable {
     @Column(name = "login")
     private var login: String? = null
     private var password: String? = null
-
     @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "user_details_id")
     private var userDetails: UserDetails? = null

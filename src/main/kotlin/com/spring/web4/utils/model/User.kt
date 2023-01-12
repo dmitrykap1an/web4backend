@@ -1,4 +1,4 @@
-package com.spring.web4.model
+package com.spring.web4.utils.model
 
 data class User(
     private var login: String,

@@ -1,4 +1,4 @@
-package com.spring.web4.entities
+package com.spring.web4.utils.entities
 
 import jakarta.persistence.*
 import java.io.Serializable
@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter
 
 @Entity
 @Table(name = "dots")
+@kotlinx.serialization.Serializable
 class DotEntity(): Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,8 @@ class DotEntity(): Serializable {
     private var serverTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
     @Column(name = "execute_time")
     private var executeTime: Long = System.nanoTime()
-
+    @Column(name = "login")
+    private var login: String?  = null
 
     fun getX() =
         x;
@@ -75,6 +77,13 @@ class DotEntity(): Serializable {
 
     fun setHitResult(hitResult: Boolean?) {
         this.hitResult = hitResult
+    }
+
+    fun getLogin() =
+        login
+
+    fun setLogin(login: String?){
+        this.login = login
     }
 
     override fun toString(): String {

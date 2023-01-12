@@ -1,4 +1,4 @@
-package com.spring.web4.security
+package com.spring.web4.utils.security
 
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts

@@ -1,4 +1,4 @@
-package com.spring.web4.entities
+package com.spring.web4.utils.entities
 
 import jakarta.persistence.*
 import java.io.Serializable
@@ -36,11 +36,9 @@ class UserDetails(): Serializable {
     fun getLogin() =
         login
 
-    fun setLogin(login: String?){
+    fun setLogin(login: String?) {
         this.login = login
     }
-
-
 
 
 }

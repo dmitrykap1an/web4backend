@@ -1,16 +1,18 @@
 package com.spring.web4.controller
 
-import com.spring.web4.model.Answer
-import com.spring.web4.security.Hashing
+import com.spring.web4.utils.exceptions.NotValidLoginOrPasswordException
+import com.spring.web4.utils.model.Answer
 import com.spring.web4.service.LoginAndRegistrationService
+import com.spring.web4.utils.exceptions.EmptyBodyException
+import com.spring.web4.utils.model.User
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/login")
@@ -19,34 +21,33 @@ data class LoginController(
     private val loginAndRegistrationService: LoginAndRegistrationService
 ) {
 
-    @GetMapping
+    @PostMapping
     @ResponseBody
     fun getLogin(
-        @RequestParam(name = "login") login: String, @RequestParam(name = "password") password: String
+        @RequestBody(required = false) user: User?, response: HttpServletResponse
     ): ResponseEntity<Answer> {
-        try {
-            return if (loginAndRegistrationService.validate(login, password)) {
-                val pass = getHashedPassword(login, password)
-                if (loginAndRegistrationService.isRegistered(login, pass)) {
-                    ResponseEntity.ok(Answer("Пользователь зарегистрирован"))
-                } else {
-                    ResponseEntity.badRequest().body(Answer("Пользователь не найден"))
-                }
-
+        return try {
+            if (user == null) throw EmptyBodyException()
+            if (loginAndRegistrationService.isRegistered(user.getLogin(), user.getPassword())) {
+                response.addCookie(loginAndRegistrationService.getCookie(user.getLogin()))
+                ResponseEntity.status(HttpStatus.OK).body(Answer("Пользователь зарегистрирован"))
             } else {
-                ResponseEntity.badRequest()
-                    .body(Answer("Логин и/или пароль имеют меньше 5 символов"))
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(Answer("Пользователь не найден"))
             }
         } catch (e: EmptyResultDataAccessException) {
-            return ResponseEntity.badRequest().body(Answer("Пользователь не найден"))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return ResponseEntity.badRequest().body(Answer("Ошибка работы сервера"))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Answer("Пользователь не найден"))
+        } catch (e: NotValidLoginOrPasswordException) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                .body(Answer("Логин и/или пароль имеют меньше 5 символов"))
+        } catch (e: NullPointerException) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Answer("Пользователь не найден"))
+        } catch (e: EmptyBodyException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Answer("Данные не получены сервером"))
         }
     }
 
-    fun getHashedPassword(login: String, password: String): String {
-        val userDetails = loginAndRegistrationService.getSalts(login)
-        return Hashing.getHash(password, userDetails.getFirstSalt()!!, userDetails.getSecondSalt()!!)
+    @GetMapping
+    fun getTest(){
+
     }
 }

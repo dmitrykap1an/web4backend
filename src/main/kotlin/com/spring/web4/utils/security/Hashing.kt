@@ -1,4 +1,4 @@
-package com.spring.web4.security
+package com.spring.web4.utils.security
 
 
 import java.lang.StringBuilder
@@ -26,7 +26,6 @@ object Hashing{
         val salt = StringBuilder()
         for(i in 1..20){
             val randomValue = (65..90).random()
-            println(randomValue)
             salt.append(randomValue.toChar().lowercase())
         }
         return salt.toString()

@@ -1,4 +1,4 @@
-package com.spring.web4.security
+package com.spring.web4.utils.security
 
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
@@ -16,7 +16,7 @@ import java.util.*
 
 class JwtTokenRepository(private val secret: String) : CsrfTokenRepository {
 
-    override fun generateToken(httpServletRequest: HttpServletRequest?): CsrfToken? {
+    override fun generateToken(httpServletRequest: HttpServletRequest?): CsrfToken {
         val id: String = UUID.randomUUID().toString().replace("-", "")
         val now = Date()
         val exp: Date = Date.from(
@@ -41,7 +41,7 @@ class JwtTokenRepository(private val secret: String) : CsrfTokenRepository {
     }
 
     override fun saveToken(csrfToken: CsrfToken, request: HttpServletRequest?, response: HttpServletResponse) {
-        if (Objects.nonNull(csrfToken)) { // TODO: переделать  
+        if (Objects.nonNull(csrfToken)) { // TODO: переделать
             if (!response.headerNames.contains(ACCESS_CONTROL_EXPOSE_HEADERS)) response.addHeader(
                 ACCESS_CONTROL_EXPOSE_HEADERS,
                 csrfToken.headerName
@@ -52,7 +52,7 @@ class JwtTokenRepository(private val secret: String) : CsrfTokenRepository {
             ) else response.addHeader(csrfToken.headerName, csrfToken.token)
         }
     }
-    
+
 
     override fun loadToken(request: HttpServletRequest?): CsrfToken {
         return request!!.getAttribute(CsrfToken::class.java.name) as CsrfToken
