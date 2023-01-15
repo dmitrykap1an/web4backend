@@ -20,9 +20,9 @@ class DotEntity(): Serializable {
     @Column(name = "r")
     private var r: Double? = null
     @Column(name = "hit_result")
-    private var hitResult: Boolean? = null
+    private var hitResult: String? = null
     @Column(name = "server_time")
-    private var serverTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+    private var serverTime: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
     @Column(name = "execute_time")
     private var executeTime: Long = System.nanoTime()
     @Column(name = "login")
@@ -75,7 +75,7 @@ class DotEntity(): Serializable {
     fun getHitResult() =
         hitResult
 
-    fun setHitResult(hitResult: Boolean?) {
+    fun setHitResult(hitResult: String?) {
         this.hitResult = hitResult
     }
 
@@ -87,7 +87,7 @@ class DotEntity(): Serializable {
     }
 
     override fun toString(): String {
-        return "DotEntity(id: $id, x: $x, y: $y, r: $r, hitResult :$hitResult"
+        return "DotEntity(id: $id, x: $x, y: $y, r: $r, hitResult :$hitResult, serverTime: $serverTime)"
     }
 
 

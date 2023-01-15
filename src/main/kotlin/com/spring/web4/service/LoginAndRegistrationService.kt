@@ -6,7 +6,6 @@ import com.spring.web4.utils.exceptions.NotValidLoginOrPasswordException
 import com.spring.web4.repository.UserDetailsRepository
 import com.spring.web4.repository.UserRepository
 import com.spring.web4.utils.security.Hashing
-import com.spring.web4.utils.security.JwtProvider
 import jakarta.servlet.http.Cookie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -16,7 +15,6 @@ import java.util.UUID
 data class LoginAndRegistrationService(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val userDetailsRepository: UserDetailsRepository,
-    @Autowired private val jwtProvider: JwtProvider
 ) {
 
     private fun validate(login: String, password: String): Boolean {
@@ -41,6 +39,10 @@ data class LoginAndRegistrationService(
         userRepository.save(user)
     }
 
+    fun getLoginByCookie(cookie: Cookie): String{
+        return userRepository.findByCookie(cookie.value).getLogin()!!
+    }
+
     fun saveSalt(userDetails: UserDetails) {
         userDetailsRepository.save(userDetails)
     }
@@ -55,14 +57,21 @@ data class LoginAndRegistrationService(
     }
 
     fun getCookie(login: String): Cookie{
-        val cookie = Cookie("JSESSIONID", login )
-        cookie.maxAge = 30 * 24 * 60 * 60
+        val cookie =  setCookie()
+        userRepository.updateCookieByLogin(login, cookie.value)
+        return cookie
+    }
+    fun setCookie(): Cookie{
+        val cookieValue = UUID.randomUUID().toString().replace("-", "")
+        val cookie = Cookie("USERSESSION", cookieValue )
         cookie.path = "/"
         cookie.secure = true
+        cookie.maxAge = 60 * 60 * 24
         return cookie
     }
 
-    fun saveUserAndSalt(login: String, password: String): UserEntity {
+
+    fun saveUserAndSalt(login: String, password: String, cookie: Cookie): UserEntity {
         val hash = Hashing.doHash(password)
         val userDetails = UserDetails()
         with(userDetails){
@@ -75,6 +84,7 @@ data class LoginAndRegistrationService(
             setLogin(login)
             setPassword(hash.first)
             setUserDetails(userDetails)
+            setCookie(cookie.value)
         }
         registerUser(userEntity)
         return userEntity

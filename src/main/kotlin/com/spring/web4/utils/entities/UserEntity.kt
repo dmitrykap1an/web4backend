@@ -2,6 +2,7 @@ package com.spring.web4.utils.entities
 
 import com.spring.web4.utils.model.User
 import jakarta.persistence.*
+import jakarta.servlet.http.Cookie
 import java.io.Serializable
 
 @Entity
@@ -18,10 +19,17 @@ class UserEntity : Serializable {
     @Column(name = "login")
     private var login: String? = null
     private var password: String? = null
+    private var cookie: String? = null
     @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "user_details_id")
     private var userDetails: UserDetails? = null
 
+    fun getCookie() =
+        cookie
+
+    fun setCookie(cookie: String?){
+        this.cookie = cookie
+    }
     fun getId() =
         id;
 

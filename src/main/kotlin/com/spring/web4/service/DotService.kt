@@ -3,6 +3,7 @@ package com.spring.web4.service
 import com.spring.web4.utils.entities.DotEntity
 import com.spring.web4.repository.DotRepository
 import com.spring.web4.utils.exceptions.SaveDotException
+import jakarta.servlet.http.Cookie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -13,22 +14,26 @@ data class DotService(
     @Autowired
     private val loginAndRegistrationService: LoginAndRegistrationService
 ) {
-    fun saveDot(login: String, x: Double?, y: Double?, r: Double?): DotEntity {
-        if (validate(x, y, r)) throw SaveDotException()
+    fun saveDot(cookie: Cookie, x: Double?, y: Double?, r: Double?): DotEntity {
+        if (!validate(x, y, r)) throw SaveDotException()
             val dotEntity = DotEntity()
+            val login = loginAndRegistrationService.getLoginByCookie(cookie)
             with(dotEntity) {
                 setLogin(login)
                 setX(x)
                 setY(y)
                 setR(r)
             }
-            dotEntity.setHitResult(checkSuccess(dotEntity.getX(), dotEntity.getY(), dotEntity.getR()))
+            val hitResult = if(checkSuccess(dotEntity.getX(), dotEntity.getY(), dotEntity.getR())) "Точка попала в область"
+                else "Точка не попала в область"
+            dotEntity.setHitResult(hitResult)
             dotEntity.setExecuteTime((System.nanoTime() - dotEntity.getExecuteTime()) / 1000000)
             dotRepository.save(dotEntity)
             return dotEntity
     }
 
-    fun getAllDots(login: String): List<DotEntity>{
+    fun getAllDots(cookie: Cookie): List<DotEntity>{
+        val login = loginAndRegistrationService.getLoginByCookie(cookie)
         return dotRepository.findAllByLogin(login)!!
     }
 
@@ -39,6 +44,6 @@ data class DotService(
     }
 
     private fun validate(x: Double?, y: Double?, r: Double?): Boolean {
-        return (r!! in 1.0..3.0) && (x!! in -3.0..5.0) && (y!! in -5.0..5.0)
+        return (r!! >= 1.0 && r <= 3.0) && (x!! >= -3.0 && x <= 5.0) && (y!! >= -5.0 && y <= 5.0)
     }
 }
